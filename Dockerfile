@@ -1,18 +1,19 @@
-FROM node:20-alpine
+FROM node:20-slim
 
-RUN apk add --no-cache libatomic python3 make g++
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 
 COPY package*.json ./
-COPY tsconfig.json ./
 COPY prisma ./prisma/
-COPY public ./public/
-COPY src ./src/
 
 RUN npm install
-RUN npm run build
+RUN npx prisma generate
 
-EXPOSE 3000
+COPY tsconfig.json ./
+COPY src ./src/
+COPY public ./public/
+
+RUN npm run build
 
 CMD ["npm", "start"]
