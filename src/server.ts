@@ -5,7 +5,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const app = express();
-app.use(cors());
+
+// Configuración CORS robusta para aceptar peticiones desde cualquier origen
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false,
+  optionsSuccessStatus: 200
+}));
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

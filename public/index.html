@@ -176,17 +176,41 @@ const total = carrito.reduce((s, i) => s + (i.cantidad*i.precio), 0); alert('✅
 } catch (err) { alert('Error: ' + err.message); }
 }
 async function confirmarPresupuesto() {
-try { const nombre = (document.getElementById('cliente-nombre')?.value || '').trim(); const telefono = (document.getElementById('cliente-telefono')?.value || '').trim(); if (!telefono) { alert('El presupuesto requiere teléfono del cliente.'); return; }
+try {
+const nombre = (document.getElementById('cliente-nombre')?.value || '').trim();
+const telefono = (document.getElementById('cliente-telefono')?.value || '').trim();
+if (!telefono) { alert('El presupuesto requiere teléfono del cliente.'); return; }
+
 const items = carrito.map(i => ({ productoId: i.id, cantidad: i.cantidad }));
+
+// PASO 1: Guardar presupuesto en la BD primero
 const presu = await api('/api/presupuestos', { method: 'POST', body: { vendedorId: usuarioActual.id, items, cliente: { nombre, telefono } } });
+
+// En este punto, el presupuesto ESTÁ GUARDADO en la BD de Prisma ✓
+alert('✅ PRESUPUESTO GUARDADO\n\nNº '+presu.id+' | Total: $'+presu.total+'\n\nYa quedó registrado en el sistema. Procediendo con WhatsApp...');
+
+// PASO 2: Preparar datos para WhatsApp (solo si el usuario lo desea)
 const lineas = presu.items.map(it => '- '+it.cantidad+' x '+it.producto.nombre+': $'+(it.cantidad*it.precio)).join('\n');
 const validoH = new Date(presu.validoHasta).toLocaleDateString('es-AR');
 const msg = '*Presupuesto Agroquímica San Bernardo*\n\nHola '+(nombre||'')+', te paso el presupuesto:\n\n'+lineas+'\n\n*TOTAL: $'+presu.total+'*\n\nVálido hasta: '+validoH+'\nGracias!';
-const tel = telefono.replace(/\D/g, ''); const link = 'https://wa.me/54'+tel+'?text='+encodeURIComponent(msg);
-const ok = confirm('✅ Presupuesto #'+presu.id+' creado.\n\nTotal: $'+presu.total+'\nVálido hasta: '+validoH+'\n\n¿Querés enviarlo por WhatsApp ahora?');
-if (ok) window.open(link, '_blank');
-carrito = []; mostrarMenu();
-} catch (err) { alert('Error: ' + err.message); }
+const tel = telefono.replace(/\D/g, '');
+const link = 'https://wa.me/54'+tel+'?text='+encodeURIComponent(msg);
+
+// PASO 3: Preguntar si desea enviar por WhatsApp
+const ok = confirm('¿Enviar presupuesto a '+nombre+' por WhatsApp?\n\n(El presupuesto ya está guardado en tu sistema)');
+
+if (ok) {
+try {
+window.open(link, '_blank');
+alert('✅ Abierto WhatsApp. El presupuesto ya está guardado.');
+} catch (err) {
+alert('⚠️ No se pudo abrir WhatsApp, pero el presupuesto #'+presu.id+' ya está guardado en tu sistema.');
+}
+}
+
+carrito = [];
+mostrarMenu();
+} catch (err) { alert('❌ Error: ' + err.message); }
 }
 async function verStock() { const p = await api('/api/productos'); const filas = p.map(x => '<tr><td>'+x.nombre+'</td><td style="text-align:center;"><strong>'+x.stock+'</strong></td><td>$'+x.precio+'</td></tr>').join(''); mostrarVista('<h2>📦 Stock</h2><table><thead><tr><th>Producto</th><th style="text-align:center;">Stock</th><th>Precio</th></tr></thead><tbody>'+filas+'</tbody></table>'); }
 async function buscarProducto() { const p = await api('/api/productos'); window._pBus = p; mostrarVista('<h2>🔍 Buscar producto</h2><div class="card"><div class="form-group"><label>Nombre:</label><input type="text" id="input-busqueda" oninput="filtrarProductos()" placeholder="Ej: Glifosato"></div><div id="resultados-busqueda"></div></div>'); filtrarProductos(); }
