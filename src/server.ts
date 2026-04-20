@@ -216,5 +216,12 @@ app.get('/api/reportes', async (_req, res) => {
   res.json({ totalFacturado: total, cantidadVentas: cobradas.length, cantidadClientes, cantidadPresupuestos });
 });
 
-const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-app.listen(port, () => console.log(`Backend iniciado en http://localhost:${port}`));
+app.get('/', (_req, res) => {
+  res.send('Backend funcionando');
+});
+
+const port = Number(process.env.PORT) || 4000;
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Backend iniciado en puerto ${port}`);
+});
