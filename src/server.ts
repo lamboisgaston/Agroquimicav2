@@ -6,7 +6,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const app = express();
 
-// Configuración CORS robusta para aceptar peticiones desde cualquier origen
+const PIN_DUENO = '2222';
+const PIN_GENERAL = '1111';
+
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -17,6 +19,25 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+function normalizarTexto(valor: string = '') {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function esDueno(empleado: { nombre: string; rol: string }) {
+  return (
+    normalizarTexto(empleado.nombre) === 'gaston' ||
+    normalizarTexto(empleado.rol) === 'dueno'
+  );
+}
+
+function generarPinInterno() {
+  return `auto_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+}
 
 // EMPLEADOS
 app.get('/api/empleados', async (_req, res) => {
@@ -29,23 +50,22 @@ app.get('/api/empleados', async (_req, res) => {
 
 app.post('/api/empleados', async (req, res) => {
   try {
-    const { nombre, rol, pin } = req.body;
-    if (!nombre || !rol || !pin) {
+    const { nombre, rol } = req.body;
+
+    if (!nombre || !rol) {
       return res.status(400).json({ error: 'Faltan datos' });
-    }
-    if (!/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN debe ser 4 digitos' });
     }
 
     const e = await prisma.empleado.create({
-      data: { nombre, rol, pin }
+      data: {
+        nombre,
+        rol,
+        pin: generarPinInterno()
+      }
     });
 
     res.json(e);
   } catch (err: any) {
-    if (err.code === 'P2002') {
-      return res.status(400).json({ error: 'Ese PIN ya esta en uso' });
-    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -53,22 +73,31 @@ app.post('/api/empleados', async (req, res) => {
 app.put('/api/empleados/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { nombre, rol, pin } = req.body;
+    const { nombre, rol } = req.body;
 
-    if (!/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN debe ser 4 digitos' });
+    if (!nombre || !rol) {
+      return res.status(400).json({ error: 'Faltan datos' });
+    }
+
+    const actual = await prisma.empleado.findUnique({
+      where: { id }
+    });
+
+    if (!actual) {
+      return res.status(404).json({ error: 'Empleado no encontrado' });
     }
 
     const e = await prisma.empleado.update({
       where: { id },
-      data: { nombre, rol, pin }
+      data: {
+        nombre,
+        rol,
+        pin: actual.pin
+      }
     });
 
     res.json(e);
   } catch (err: any) {
-    if (err.code === 'P2002') {
-      return res.status(400).json({ error: 'Ese PIN ya esta en uso' });
-    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -88,7 +117,13 @@ app.post('/api/login', async (req, res) => {
     where: { id: empleadoId }
   });
 
-  if (!e || !e.activo || e.pin !== pin) {
+  if (!e || !e.activo) {
+    return res.status(401).json({ error: 'Usuario inexistente o inactivo' });
+  }
+
+  const pinEsperado = esDueno(e) ? PIN_DUENO : PIN_GENERAL;
+
+  if (String(pin) !== pinEsperado) {
     return res.status(401).json({ error: 'PIN incorrecto' });
   }
 
