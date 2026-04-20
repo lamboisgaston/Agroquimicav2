@@ -8,91 +8,138 @@ datasource db {
 }
 
 model Empleado {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  rol       String
-  pin       String   @unique
-  activo    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  ventasComoVendedor Venta[]        @relation("VentaVendedor")
-  ventasComoCobrador Venta[]        @relation("VentaCobrador")
+  id                 Int           @id @default(autoincrement())
+  nombre             String
+  rol                String
+  pin                String        @unique
+  activo             Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+  ventasComoVendedor Venta[]       @relation("VentaVendedor")
+  ventasComoCobrador Venta[]       @relation("VentaCobrador")
   presupuestos       Presupuesto[]
 }
 
+model Proveedor {
+  id            Int        @id @default(autoincrement())
+  nombre        String
+  telefono      String?
+  email         String?
+  direccion     String?
+  observaciones String?
+  activo        Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  productos     Producto[]
+}
+
+model CategoriaProducto {
+  id            Int                    @id @default(autoincrement())
+  nombre        String                 @unique
+  activo        Boolean                @default(true)
+  createdAt     DateTime               @default(now())
+  productos     Producto[]
+  subcategorias SubcategoriaProducto[]
+}
+
+model SubcategoriaProducto {
+  id          Int               @id @default(autoincrement())
+  nombre      String
+  categoriaId Int
+  activo      Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+
+  categoria   CategoriaProducto @relation(fields: [categoriaId], references: [id])
+  productos   Producto[]
+
+  @@unique([categoriaId, nombre])
+}
+
 model Producto {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  precio    Float
-  stock     Int      @default(0)
-  activo    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  itemsVenta       ItemVenta[]
-  itemsPresupuesto ItemPresupuesto[]
+  id             Int                  @id @default(autoincrement())
+  nombre         String
+  precio         Float
+  stock          Int                  @default(0)
+  activo         Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+
+  proveedorId    Int?
+  categoriaId    Int?
+  subcategoriaId Int?
+
+  proveedor      Proveedor?           @relation(fields: [proveedorId], references: [id])
+  categoria      CategoriaProducto?   @relation(fields: [categoriaId], references: [id])
+  subcategoria   SubcategoriaProducto? @relation(fields: [subcategoriaId], references: [id])
+
+  itemsVenta        ItemVenta[]
+  itemsPresupuesto  ItemPresupuesto[]
 }
 
 model Cliente {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  telefono  String   @unique
-  createdAt DateTime @default(now())
+  id           Int           @id @default(autoincrement())
+  nombre       String
+  telefono     String        @unique
+  createdAt    DateTime      @default(now())
   ventas       Venta[]
   presupuestos Presupuesto[]
 }
 
 model Venta {
-  id          Int       @id @default(autoincrement())
-  fecha       DateTime  @default(now())
-  total       Float
-  estado      String
-  formaPago   String?
-  fechaCobro  DateTime?
-  vendedorId  Int
-  vendedor    Empleado  @relation("VentaVendedor", fields: [vendedorId], references: [id])
-  cobradorId  Int?
-  cobrador    Empleado? @relation("VentaCobrador", fields: [cobradorId], references: [id])
-  clienteId   Int?
-  cliente     Cliente?  @relation(fields: [clienteId], references: [id])
-  items       ItemVenta[]
+  id         Int        @id @default(autoincrement())
+  fecha      DateTime   @default(now())
+  total      Float
+  estado     String
+  formaPago  String?
+  fechaCobro DateTime?
+  vendedorId Int
+  cobradorId Int?
+  clienteId  Int?
+
+  vendedor   Empleado   @relation("VentaVendedor", fields: [vendedorId], references: [id])
+  cobrador   Empleado?  @relation("VentaCobrador", fields: [cobradorId], references: [id])
+  cliente    Cliente?   @relation(fields: [clienteId], references: [id])
+  items      ItemVenta[]
 }
 
 model ItemVenta {
   id         Int      @id @default(autoincrement())
   ventaId    Int
-  venta      Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
   productoId Int
-  producto   Producto @relation(fields: [productoId], references: [id])
   cantidad   Int
   precio     Float
+
+  venta      Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  producto   Producto @relation(fields: [productoId], references: [id])
 }
 
 model Presupuesto {
-  id           Int      @id @default(autoincrement())
-  fecha        DateTime @default(now())
-  validoHasta  DateTime
-  total        Float
-  estado       String   @default("vigente")
-  clienteId    Int
-  cliente      Cliente  @relation(fields: [clienteId], references: [id])
-  vendedorId   Int
-  vendedor     Empleado @relation(fields: [vendedorId], references: [id])
-  items        ItemPresupuesto[]
+  id          Int              @id @default(autoincrement())
+  fecha       DateTime         @default(now())
+  validoHasta DateTime
+  total       Float
+  estado      String           @default("vigente")
+  clienteId   Int
+  vendedorId  Int
+
+  cliente     Cliente          @relation(fields: [clienteId], references: [id])
+  vendedor    Empleado         @relation(fields: [vendedorId], references: [id])
+  items       ItemPresupuesto[]
 }
 
 model ItemPresupuesto {
-  id             Int          @id @default(autoincrement())
-  presupuestoId  Int
-  presupuesto    Presupuesto  @relation(fields: [presupuestoId], references: [id], onDelete: Cascade)
-  productoId     Int
-  producto       Producto     @relation(fields: [productoId], references: [id])
-  cantidad       Int
-  precio         Float
+  id            Int         @id @default(autoincrement())
+  presupuestoId Int
+  productoId    Int
+  cantidad      Int
+  precio        Float
+
+  presupuesto   Presupuesto @relation(fields: [presupuestoId], references: [id], onDelete: Cascade)
+  producto      Producto    @relation(fields: [productoId], references: [id])
 }
 
 model CierreCaja {
-  id        Int      @id @default(autoincrement())
-  fecha     DateTime @default(now())
-  ingresos  Float
-  egresos   Float
-  ventas    Int
-  total     Float
+  id       Int      @id @default(autoincrement())
+  fecha    DateTime @default(now())
+  ingresos Float
+  egresos  Float
+  ventas   Int
+  total    Float
 }
