@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agroquímica San Bernardo</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+body { background-color: #f0f4f8; color: #1a202c; min-height: 100vh; font-size: 14px; line-height: 1.4; }
+.header { background-color: #2c5530; color: white; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 18px; font-weight: 700; }
+.header .user-info { font-size: 14px; display: flex; gap: 12px; align-items: center; }
+.btn-logout { background-color: #c53030; color: white; border: none; padding: 6px 14px; font-size: 13px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.container { max-width: 1200px; margin: 14px auto; padding: 0 14px; }
+h2 { font-size: 19px; margin-bottom: 12px; color: #2c5530; }
+h3 { font-size: 15px; margin-bottom: 8px; color: #2d3748; }
+.login-container { max-width: 520px; margin: 40px auto; background: white; padding: 28px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.login-container h1 { font-size: 22px; color: #2c5530; margin-bottom: 4px; text-align: center; }
+.login-container .subtitle { font-size: 14px; color: #718096; margin-bottom: 18px; text-align: center; }
+.login-container .pregunta { font-size: 15px; margin-bottom: 14px; color: #2d3748; font-weight: 600; text-align: center; }
+.users-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.user-btn { background: white; border: 2px solid #2c5530; color: #2c5530; padding: 16px 12px; font-size: 15px; font-weight: 700; border-radius: 10px; cursor: pointer; text-align: center; }
+.user-btn:hover { background-color: #2c5530; color: white; }
+.user-btn .user-icon { display: block; font-size: 36px; margin-bottom: 6px; }
+.user-btn .user-rol { display: block; font-size: 12px; font-weight: 500; margin-top: 4px; opacity: 0.8; }
+.pin-container { max-width: 360px; margin: 60px auto; background: white; padding: 28px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); text-align: center; }
+.pin-container h2 { font-size: 18px; color: #2c5530; margin-bottom: 6px; }
+.pin-container .pin-user { font-size: 14px; color: #718096; margin-bottom: 18px; }
+.pin-display { font-size: 32px; font-weight: 700; letter-spacing: 14px; color: #2c5530; padding: 16px; background: #f7fafc; border: 2px solid #cbd5e0; border-radius: 8px; margin-bottom: 16px; min-height: 64px; }
+.pin-display.error { border-color: #c53030; color: #c53030; animation: shake 0.3s; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pin-key { background: white; border: 2px solid #2c5530; color: #2c5530; padding: 18px; font-size: 22px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+.pin-key:hover { background-color: #2c5530; color: white; }
+.pin-key.borrar { border-color: #ed8936; color: #ed8936; font-size: 16px; }
+.pin-key.cancelar { border-color: #718096; color: #718096; font-size: 14px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+.menu-btn { background: white; border: 2px solid #cbd5e0; padding: 16px 10px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; text-align: center; color: #2d3748; }
+.menu-btn:hover { border-color: #2c5530; background-color: #f7fafc; }
+.menu-btn .menu-icon { display: block; font-size: 28px; margin-bottom: 6px; }
+.card { background: white; padding: 14px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 12px; }
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.form-group input, .form-group select { width: 100%; padding: 8px 10px; font-size: 14px; border: 2px solid #cbd5e0; border-radius: 6px; }
+.btn-primary { background-color: #2c5530; color: white; border: none; padding: 10px 18px; font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; }
+.btn-secondary { background: white; color: #2c5530; border: 2px solid #2c5530; padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer; }
+.btn-warning { background: #ed8936; color: white; border: none; padding: 10px 18px; font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 6px; }
+.btn-volver { background: #718096; color: white; border: none; padding: 6px 14px; font-size: 13px; border-radius: 6px; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
+.btn-eliminar { background: #c53030; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 5px; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+th { background: #2c5530; color: white; padding: 10px 8px; font-size: 13px; text-align: left; }
+td { padding: 9px 8px; font-size: 13px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+.carrito-item { background: #f7fafc; padding: 8px 10px; border-radius: 6px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.carrito-item button { background: #c53030; color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+.total-grande { font-size: 22px; font-weight: 700; color: #2c5530; text-align: right; padding: 12px 16px; background: #f0fff4; border-radius: 6px; margin: 10px 0; }
+.layout-venta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.col-venta { background: white; padding: 14px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.cliente-box { background: #fff8e1; padding: 12px; border-radius: 6px; margin-top: 12px; border-left: 4px solid #f59e0b; }
+.cliente-box-title { font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 8px; }
+.cliente-help { font-size: 11px; color: #92400e; margin-top: 4px; }
+.badge { display: inline-block; padding: 2px 8px; font-size: 11px; font-weight: 700; border-radius: 4px; }
+.badge-vigente { background: #c6f6d5; color: #22543d; }
+.badge-vencido { background: #fed7d7; color: #742a2a; }
+.loading { text-align: center; padding: 30px; color: #718096; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="pantalla-loading" class="loading">Conectando con el sistema...</div>
+<div id="pantalla-seleccion" class="login-container hidden">
+<h1>Agroquímica San Bernardo</h1>
+<p class="subtitle">Sistema de gestión</p>
+<p class="pregunta">¿Quién sos?</p>
+<div class="users-grid" id="users-grid"></div>
+</div>
+<div id="pantalla-pin" class="pin-container hidden">
+<h2 id="pin-titulo">Hola</h2>
+<p class="pin-user" id="pin-user"></p>
+<div class="pin-display" id="pin-display">_ _ _ _</div>
+<div class="pin-keypad">
+<button class="pin-key" onclick="agregarDigito('1')">1</button>
+<button class="pin-key" onclick="agregarDigito('2')">2</button>
+<button class="pin-key" onclick="agregarDigito('3')">3</button>
+<button class="pin-key" onclick="agregarDigito('4')">4</button>
+<button class="pin-key" onclick="agregarDigito('5')">5</button>
+<button class="pin-key" onclick="agregarDigito('6')">6</button>
+<button class="pin-key" onclick="agregarDigito('7')">7</button>
+<button class="pin-key" onclick="agregarDigito('8')">8</button>
+<button class="pin-key" onclick="agregarDigito('9')">9</button>
+<button class="pin-key cancelar" onclick="cancelarPin()">Volver</button>
+<button class="pin-key" onclick="agregarDigito('0')">0</button>
+<button class="pin-key borrar" onclick="borrarDigito()">← Borrar</button>
+</div>
+</div>
+<div id="pantalla-app" class="hidden">
+<div class="header">
+<h1>Agroquímica San Bernardo</h1>
+<div class="user-info"><span id="user-info-display"></span><button class="btn-logout" onclick="logout()">Salir</button></div>
+</div>
+<div class="container">
+<div id="vista-menu"><h2>Menú principal</h2><div class="menu-grid" id="menu-grid"></div></div>
+<div id="vista-contenido" class="hidden"></div>
+</div>
+</div>
+<script>
+const API = window.location.origin;
+let empleados = [], productos = [];
+let usuarioSeleccionado = null, usuarioActual = null, pinIngresado = '', carrito = [], modoVenta = 'venta';
+const menus = {
+mostrador: [{icon:'🛒',label:'Nueva venta',action:'nuevaVenta'},{icon:'📋',label:'Presupuesto',action:'nuevoPresupuesto'},{icon:'📦',label:'Ver stock',action:'verStock'},{icon:'🔍',label:'Buscar producto',action:'buscarProducto'}],
+caja: [{icon:'💵',label:'Cobrar venta',action:'cobrarVenta'},{icon:'📊',label:'Caja del día',action:'verCaja'},{icon:'🔒',label:'Cierre de caja',action:'cerrarCaja'}],
+gerente: [{icon:'🛒',label:'Nueva venta',action:'nuevaVenta'},{icon:'📋',label:'Presupuesto',action:'nuevoPresupuesto'},{icon:'📦',label:'Ver stock',action:'verStock'},{icon:'💵',label:'Caja del día',action:'verCaja'},{icon:'📊',label:'Reportes',action:'verReportes'},{icon:'👥',label:'Clientes',action:'verClientes'},{icon:'📋',label:'Presupuestos',action:'verPresupuestos'},{icon:'➕',label:'Cargar producto',action:'cargarProducto'},{icon:'👨‍💼',label:'Empleados',action:'verEmpleados'}],
+dueno: [{icon:'🛒',label:'Nueva venta',action:'nuevaVenta'},{icon:'📋',label:'Presupuesto',action:'nuevoPresupuesto'},{icon:'📦',label:'Ver stock',action:'verStock'},{icon:'💵',label:'Caja del día',action:'verCaja'},{icon:'📊',label:'Reportes',action:'verReportes'},{icon:'👥',label:'Clientes',action:'verClientes'},{icon:'📋',label:'Presupuestos',action:'verPresupuestos'},{icon:'➕',label:'Cargar producto',action:'cargarProducto'},{icon:'👨‍💼',label:'Empleados',action:'verEmpleados'}],
+};
+const nombresRoles = { mostrador: '🛒 Mostrador', caja: '💵 Caja', gerente: '👨‍💼 Gerente', dueno: '👑 Dueño' };
+const iconosRoles = { mostrador: '🛒', caja: '💵', gerente: '👨‍💼', dueno: '👑' };
+async function api(path, options = {}) {
+const res = await fetch(API + path, { headers: { 'Content-Type': 'application/json' }, ...options, body: options.body ? JSON.stringify(options.body) : undefined });
+const data = await res.json();
+if (!res.ok) throw new Error(data.error || 'Error');
+return data;
+}
+async function init() {
+try { empleados = await api('/api/empleados'); document.getElementById('pantalla-loading').classList.add('hidden'); document.getElementById('pantalla-seleccion').classList.remove('hidden'); renderUsuarios(); }
+catch (err) { document.getElementById('pantalla-loading').innerHTML = '❌ No se pudo conectar. Recargá la página.'; }
+}
+function renderUsuarios() {
+const grid = document.getElementById('users-grid'); grid.innerHTML = '';
+empleados.forEach(emp => { const btn = document.createElement('button'); btn.className = 'user-btn'; btn.onclick = () => seleccionarUsuario(emp); btn.innerHTML = '<span class="user-icon">'+iconosRoles[emp.rol]+'</span>'+emp.nombre+'<span class="user-rol">'+nombresRoles[emp.rol]+'</span>'; grid.appendChild(btn); });
+}
+function seleccionarUsuario(emp) { usuarioSeleccionado = emp; pinIngresado = ''; document.getElementById('pantalla-seleccion').classList.add('hidden'); document.getElementById('pantalla-pin').classList.remove('hidden'); document.getElementById('pin-titulo').textContent = 'Hola '+emp.nombre; document.getElementById('pin-user').textContent = nombresRoles[emp.rol]+' — Ingresá tu PIN'; actualizarPinDisplay(); }
+function cancelarPin() { usuarioSeleccionado = null; pinIngresado = ''; document.getElementById('pantalla-pin').classList.add('hidden'); document.getElementById('pantalla-seleccion').classList.remove('hidden'); }
+function actualizarPinDisplay() { const display = document.getElementById('pin-display'); display.classList.remove('error'); let texto = ''; for (let i = 0; i < 4; i++) { texto += i < pinIngresado.length ? '●' : '_'; if (i < 3) texto += ' '; } display.textContent = texto; }
+function agregarDigito(d) { if (pinIngresado.length >= 4) return; pinIngresado += d; actualizarPinDisplay(); if (pinIngresado.length === 4) setTimeout(verificarPin, 200); }
+function borrarDigito() { if (pinIngresado.length === 0) return; pinIngresado = pinIngresado.slice(0, -1); actualizarPinDisplay(); }
+async function verificarPin() {
+try { const data = await api('/api/login', { method: 'POST', body: { empleadoId: usuarioSeleccionado.id, pin: pinIngresado } }); usuarioActual = data; document.getElementById('pantalla-pin').classList.add('hidden'); document.getElementById('pantalla-app').classList.remove('hidden'); document.getElementById('user-info-display').textContent = usuarioActual.nombre+' — '+nombresRoles[usuarioActual.rol]; mostrarMenu(); }
+catch (err) { document.getElementById('pin-display').classList.add('error'); setTimeout(() => { pinIngresado = ''; actualizarPinDisplay(); }, 600); }
+}
+function logout() { usuarioActual = null; usuarioSeleccionado = null; pinIngresado = ''; carrito = []; document.getElementById('pantalla-app').classList.add('hidden'); document.getElementById('pantalla-seleccion').classList.remove('hidden'); }
+function mostrarMenu() {
+const grid = document.getElementById('menu-grid'); grid.innerHTML = '';
+menus[usuarioActual.rol].forEach(item => { const btn = document.createElement('button'); btn.className = 'menu-btn'; btn.innerHTML = '<span class="menu-icon">'+item.icon+'</span>'+item.label; btn.onclick = () => window[item.action](); grid.appendChild(btn); });
+document.getElementById('vista-menu').classList.remove('hidden'); document.getElementById('vista-contenido').classList.add('hidden');
+}
+function mostrarVista(html) { document.getElementById('vista-menu').classList.add('hidden'); const cont = document.getElementById('vista-contenido'); cont.innerHTML = '<button class="btn-volver" onclick="mostrarMenu()">← Volver al menú</button>' + html; cont.classList.remove('hidden'); }
+async function nuevaVenta() { modoVenta = 'venta'; carrito = []; productos = await api('/api/productos'); renderVenta(); }
+async function nuevoPresupuesto() { modoVenta = 'presupuesto'; carrito = []; productos = await api('/api/productos'); renderVenta(); }
+function renderVenta() {
+const esP = modoVenta === 'presupuesto';
+const titulo = esP ? '📋 Nuevo presupuesto' : '🛒 Nueva venta';
+const opciones = productos.map(p => '<option value="'+p.id+'" data-precio="'+p.precio+'" data-nombre="'+p.nombre+'" data-stock="'+p.stock+'">'+p.nombre+' - $'+p.precio+' (Stock: '+p.stock+')</option>').join('');
+const items = carrito.length === 0 ? '<p style="color:#718096; font-size:13px; text-align:center; padding:20px;">No hay productos cargados</p>' : carrito.map((it, idx) => '<div class="carrito-item"><div><strong>'+it.nombre+'</strong><br>'+it.cantidad+' x $'+it.precio+' = <strong>$'+(it.cantidad*it.precio)+'</strong></div><button onclick="quitarDelCarrito('+idx+')">Quitar</button></div>').join('');
+const total = carrito.reduce((s, it) => s + (it.cantidad*it.precio), 0);
+const cajaCli = esP ? '<div class="cliente-box"><div class="cliente-box-title">📋 Datos del cliente (OBLIGATORIO)</div><div class="form-group"><label>Nombre:</label><input type="text" id="cliente-nombre" placeholder="Ej: Juan Pérez"></div><div class="form-group"><label>Teléfono:</label><input type="tel" id="cliente-telefono" placeholder="Ej: 3875551234"></div></div>' : '<div class="cliente-box"><div class="cliente-box-title">📋 Datos del cliente (opcional)</div><div class="form-group"><label>Nombre:</label><input type="text" id="cliente-nombre" placeholder="Opcional"></div><div class="form-group"><label>Teléfono:</label><input type="tel" id="cliente-telefono" placeholder="Opcional"></div><p class="cliente-help">💡 Si dejás vacío, la venta se hace sin cliente.</p></div>';
+const btnConf = carrito.length > 0 ? (esP ? '<button class="btn-warning" onclick="confirmarPresupuesto()">📤 Generar presupuesto</button>' : '<button class="btn-primary" onclick="confirmarVenta()">✅ Confirmar y enviar a caja</button>') : '';
+mostrarVista('<h2>'+titulo+'</h2><div class="layout-venta"><div class="col-venta"><h3>Agregar producto</h3><div class="form-group"><label>Producto</label><select id="select-producto">'+opciones+'</select></div><div class="form-group"><label>Cantidad</label><input type="number" id="input-cantidad" value="1" min="1"></div><button class="btn-primary" onclick="agregarAlCarrito()">+ Agregar</button>'+cajaCli+'</div><div class="col-venta"><h3>'+(esP?'Productos del presupuesto':'Productos en esta venta')+'</h3>'+items+'<div class="total-grande">TOTAL: $'+total+'</div>'+btnConf+'</div></div>');
+}
+function agregarAlCarrito() {
+const select = document.getElementById('select-producto'); const opt = select.options[select.selectedIndex];
+const cantidad = parseInt(document.getElementById('input-cantidad').value); const stock = parseInt(opt.dataset.stock);
+if (cantidad < 1) return;
+const ya = carrito.find(i => i.id == select.value); const totalCar = (ya ? ya.cantidad : 0) + cantidad;
+if (modoVenta === 'venta' && totalCar > stock) { alert('Sin stock suficiente. Disponible: '+stock); return; }
+const n = document.getElementById('cliente-nombre')?.value || ''; const t = document.getElementById('cliente-telefono')?.value || '';
+window._cliTemp = { nombre: n, telefono: t };
+if (ya) ya.cantidad += cantidad; else carrito.push({ id: parseInt(select.value), nombre: opt.dataset.nombre, precio: parseFloat(opt.dataset.precio), cantidad });
+renderVenta();
+if (window._cliTemp) { const nE = document.getElementById('cliente-nombre'); const tE = document.getElementById('cliente-telefono'); if (nE) nE.value = window._cliTemp.nombre; if (tE) tE.value = window._cliTemp.telefono; }
+}
+function quitarDelCarrito(idx) { const n = document.getElementById('cliente-nombre')?.value || ''; const t = document.getElementById('cliente-telefono')?.value || ''; window._cliTemp = { nombre: n, telefono: t }; carrito.splice(idx, 1); renderVenta(); if (window._cliTemp) { const nE = document.getElementById('cliente-nombre'); const tE = document.getElementById('cliente-telefono'); if (nE) nE.value = window._cliTemp.nombre; if (tE) tE.value = window._cliTemp.telefono; } }
+async function confirmarVenta() {
+try { const items = carrito.map(i => ({ productoId: i.id, cantidad: i.cantidad })); const nombre = (document.getElementById('cliente-nombre')?.value || '').trim(); const telefono = (document.getElementById('cliente-telefono')?.value || '').trim(); const cliente = telefono ? { nombre, telefono } : null;
+await api('/api/ventas', { method: 'POST', body: { vendedorId: usuarioActual.id, items, cliente } });
+const total = carrito.reduce((s, i) => s + (i.cantidad*i.precio), 0); alert('✅ Venta enviada a caja. Total: $'+total + (cliente ? '\nCliente: '+(nombre||telefono) : '')); carrito = []; mostrarMenu();
+} catch (err) { alert('Error: ' + err.message); }
+}
+async function confirmarPresupuesto() {
+try { const nombre = (document.getElementById('cliente-nombre')?.value || '').trim(); const telefono = (document.getElementById('cliente-telefono')?.value || '').trim(); if (!telefono) { alert('El presupuesto requiere teléfono del cliente.'); return; }
+const items = carrito.map(i => ({ productoId: i.id, cantidad: i.cantidad }));
+const presu = await api('/api/presupuestos', { method: 'POST', body: { vendedorId: usuarioActual.id, items, cliente: { nombre, telefono } } });
+const lineas = presu.items.map(it => '- '+it.cantidad+' x '+it.producto.nombre+': $'+(it.cantidad*it.precio)).join('\n');
+const validoH = new Date(presu.validoHasta).toLocaleDateString('es-AR');
+const msg = '*Presupuesto Agroquímica San Bernardo*\n\nHola '+(nombre||'')+', te paso el presupuesto:\n\n'+lineas+'\n\n*TOTAL: $'+presu.total+'*\n\nVálido hasta: '+validoH+'\nGracias!';
+const tel = telefono.replace(/\D/g, ''); const link = 'https://wa.me/54'+tel+'?text='+encodeURIComponent(msg);
+const ok = confirm('✅ Presupuesto #'+presu.id+' creado.\n\nTotal: $'+presu.total+'\nVálido hasta: '+validoH+'\n\n¿Querés enviarlo por WhatsApp ahora?');
+if (ok) window.open(link, '_blank');
+carrito = []; mostrarMenu();
+} catch (err) { alert('Error: ' + err.message); }
+}
+async function verStock() { const p = await api('/api/productos'); const filas = p.map(x => '<tr><td>'+x.nombre+'</td><td style="text-align:center;"><strong>'+x.stock+'</strong></td><td>$'+x.precio+'</td></tr>').join(''); mostrarVista('<h2>📦 Stock</h2><table><thead><tr><th>Producto</th><th style="text-align:center;">Stock</th><th>Precio</th></tr></thead><tbody>'+filas+'</tbody></table>'); }
+async function buscarProducto() { const p = await api('/api/productos'); window._pBus = p; mostrarVista('<h2>🔍 Buscar producto</h2><div class="card"><div class="form-group"><label>Nombre:</label><input type="text" id="input-busqueda" oninput="filtrarProductos()" placeholder="Ej: Glifosato"></div><div id="resultados-busqueda"></div></div>'); filtrarProductos(); }
+function filtrarProductos() { const p = window._pBus || []; const q = (document.getElementById('input-busqueda').value || '').toLowerCase(); const r = p.filter(x => x.nombre.toLowerCase().includes(q)); const html = r.length === 0 ? '<p style="padding:14px; text-align:center;">No se encontró ningún producto.</p>' : '<table><thead><tr><th>Producto</th><th>Stock</th><th>Precio</th></tr></thead><tbody>'+r.map(x => '<tr><td>'+x.nombre+'</td><td style="text-align:center;">'+x.stock+'</td><td>$'+x.precio+'</td></tr>').join('')+'</tbody></table>'; document.getElementById('resultados-busqueda').innerHTML = html; }
+async function cobrarVenta() {
+const p = await api('/api/ventas?estado=pendiente_de_cobro');
+if (p.length === 0) { mostrarVista('<h2>💵 Cobrar venta</h2><div class="card"><p style="text-align:center; padding:20px;">No hay ventas pendientes.</p></div>'); return; }
+window._vP = p;
+const opciones = p.map(v => '<option value="'+v.id+'">Venta #'+v.id+' - $'+v.total+' ('+v.vendedor.nombre+')'+(v.cliente ? ' - '+v.cliente.nombre : '')+'</option>').join('');
+mostrarVista('<h2>💵 Cobrar venta</h2><div class="layout-venta"><div class="col-venta"><h3>Seleccionar venta</h3><div class="form-group"><label>Venta a cobrar:</label><select id="select-venta" onchange="mostrarDetalleVenta()">'+opciones+'</select></div><div class="form-group"><label>Forma de pago:</label><select id="select-pago"><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="transferencia">Transferencia</option></select></div><button class="btn-primary" onclick="confirmarCobro()">✅ Confirmar cobro</button></div><div class="col-venta"><h3>Detalle</h3><div id="detalle-venta"></div></div></div>');
+mostrarDetalleVenta();
+}
+function mostrarDetalleVenta() { const id = parseInt(document.getElementById('select-venta').value); const v = window._vP.find(x => x.id === id); if (!v) return; const items = v.items.map(i => '<li>'+i.cantidad+' x '+i.producto.nombre+' = $'+(i.cantidad*i.precio)+'</li>').join(''); const cli = v.cliente ? '<div style="background:#fff8e1; padding:8px; border-radius:6px; margin-bottom:8px; font-size:13px;">👤 Cliente: <strong>'+v.cliente.nombre+'</strong> · '+v.cliente.telefono+'</div>' : ''; document.getElementById('detalle-venta').innerHTML = cli+'<ul style="margin:0 0 12px 18px; font-size:13px;">'+items+'</ul><div class="total-grande">$'+v.total+'</div>'; }
+async function confirmarCobro() { try { const id = parseInt(document.getElementById('select-venta').value); const fp = document.getElementById('select-pago').value; await api('/api/ventas/'+id+'/cobrar', { method: 'POST', body: { cobradorId: usuarioActual.id, formaPago: fp } }); alert('✅ Cobro registrado en '+fp); mostrarMenu(); } catch (err) { alert('Error: '+err.message); } }
+async function verCaja() {
+const d = await api('/api/caja/hoy');
+const filas = d.cobradas.map(v => '<tr><td>#'+v.id+'</td><td>'+new Date(v.fechaCobro).toLocaleTimeString('es-AR')+'</td><td>'+(v.cliente?v.cliente.nombre:'-')+'</td><td>'+v.formaPago+'</td><td><strong>$'+v.total+'</strong></td></tr>').join('') || '<tr><td colspan="5" style="text-align:center; padding:14px;">Sin cobros</td></tr>';
+mostrarVista('<h2>💵 Caja del día</h2><div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;"><div style="background:#c6f6d5; padding:14px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#22543d;">Ingresos</div><div style="font-size:20px; font-weight:700; color:#22543d;">$'+d.ingresos+'</div></div><div style="background:#fed7d7; padding:14px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#742a2a;">Egresos</div><div style="font-size:20px; font-weight:700; color:#742a2a;">$'+d.egresos+'</div></div><div style="background:#bee3f8; padding:14px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#2c5282;">Ventas</div><div style="font-size:20px; font-weight:700; color:#2c5282;">'+d.ventas+'</div></div></div><div class="card"><h3>Cobros del día</h3><table><thead><tr><th>Venta</th><th>Hora</th><th>Cliente</th><th>Pago</th><th>Monto</th></tr></thead><tbody>'+filas+'</tbody></table></div>');
+}
+async function cerrarCaja() { const d = await api('/api/caja/hoy'); mostrarVista('<h2>🔒 Cierre de caja</h2><div class="card"><div style="text-align:center;"><div class="total-grande">TOTAL: $'+d.total+'</div><p style="font-size:13px; color:#718096; margin:12px 0;">Ventas: '+d.ventas+'</p><button class="btn-primary" onclick="confirmarCierre()">Cerrar caja</button></div></div>'); }
+async function confirmarCierre() { if (!confirm('¿Confirmar cierre de caja?')) return; await api('/api/caja/cerrar', { method: 'POST' }); alert('✅ Caja cerrada'); mostrarMenu(); }
+async function verReportes() { const d = await api('/api/reportes'); mostrarVista('<h2>📊 Reportes</h2><div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;"><div style="background:#f0fff4; padding:16px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#22543d;">Total facturado</div><div style="font-size:22px; font-weight:700; color:#2c5530;">$'+d.totalFacturado+'</div></div><div style="background:#ebf8ff; padding:16px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#2c5282;">Cantidad de ventas</div><div style="font-size:22px; font-weight:700; color:#2c5282;">'+d.cantidadVentas+'</div></div><div style="background:#fff8e1; padding:16px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#92400e;">Clientes</div><div style="font-size:22px; font-weight:700; color:#92400e;">'+d.cantidadClientes+'</div></div><div style="background:#fef3c7; padding:16px; border-radius:6px; text-align:center;"><div style="font-size:13px; color:#92400e;">Presupuestos</div><div style="font-size:22px; font-weight:700; color:#92400e;">'+d.cantidadPresupuestos+'</div></div></div>'); }
+async function verClientes() { const lista = await api('/api/clientes'); const filas = lista.map(c => '<tr><td><strong>'+c.nombre+'</strong></td><td>'+c.telefono+'</td><td>'+new Date(c.createdAt).toLocaleDateString('es-AR')+'</td></tr>').join('') || '<tr><td colspan="3" style="text-align:center; padding:14px;">Sin clientes</td></tr>'; mostrarVista('<h2>👥 Clientes ('+lista.length+')</h2><div class="card"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Registrado</th></tr></thead><tbody>'+filas+'</tbody></table></div>'); }
+async function verPresupuestos() {
+const lista = await api('/api/presupuestos');
+const filas = lista.map(p => { const tel = p.cliente.telefono.replace(/\D/g, ''); const lineas = p.items.map(it => '- '+it.cantidad+' x '+it.producto.nombre+': $'+(it.cantidad*it.precio)).join('\n'); const msg = '*Presupuesto Agroquímica San Bernardo*\n\nHola '+p.cliente.nombre+', te paso el presupuesto:\n\n'+lineas+'\n\n*TOTAL: $'+p.total+'*\n\nVálido hasta: '+new Date(p.validoHasta).toLocaleDateString('es-AR')+'\nGracias!'; const link = 'https://wa.me/54'+tel+'?text='+encodeURIComponent(msg); const badge = p.estado === 'vigente' ? '<span class="badge badge-vigente">Vigente</span>' : '<span class="badge badge-vencido">Vencido</span>'; return '<tr><td>#'+p.id+'</td><td>'+new Date(p.fecha).toLocaleDateString('es-AR')+'</td><td><strong>'+p.cliente.nombre+'</strong><br><small>'+p.cliente.telefono+'</small></td><td>$'+p.total+'</td><td>'+new Date(p.validoHasta).toLocaleDateString('es-AR')+'</td><td>'+badge+'</td><td><a href="'+link+'" target="_blank" class="btn-secondary" style="text-decoration:none; display:inline-block;">📱 WhatsApp</a></td></tr>'; }).join('') || '<tr><td colspan="7" style="text-align:center; padding:14px;">Sin presupuestos</td></tr>';
+mostrarVista('<h2>📋 Presupuestos</h2><div class="card"><table><thead><tr><th>#</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Vence</th><th>Estado</th><th>Acción</th></tr></thead><tbody>'+filas+'</tbody></table></div>');
+}
+function cargarProducto() { mostrarVista('<h2>➕ Cargar producto</h2><div class="card"><div class="form-group"><label>Nombre:</label><input type="text" id="nuevo-nombre" placeholder="Ej: Insecticida X 1L"></div><div class="form-group"><label>Precio ($):</label><input type="number" id="nuevo-precio" placeholder="0"></div><div class="form-group"><label>Stock:</label><input type="number" id="nuevo-stock" placeholder="0"></div><button class="btn-primary" onclick="guardarProducto()">Guardar</button></div>'); }
+async function guardarProducto() { try { const nombre = document.getElementById('nuevo-nombre').value.trim(); const precio = parseFloat(document.getElementById('nuevo-precio').value); const stock = parseInt(document.getElementById('nuevo-stock').value) || 0; await api('/api/productos', { method: 'POST', body: { nombre, precio, stock } }); alert('✅ Producto "'+nombre+'" agregado.'); mostrarMenu(); } catch (err) { alert('Error: '+err.message); } }
+async function verEmpleados() { const lista = await api('/api/empleados'); const filas = lista.map(emp => '<tr><td><strong>'+emp.nombre+'</strong></td><td>'+nombresRoles[emp.rol]+'</td><td style="text-align:center;"><span style="font-family:monospace; background:#f7fafc; padding:4px 8px; border-radius:4px;">'+emp.pin+'</span></td><td style="text-align:right;"><button class="btn-secondary" onclick="editarEmpleado('+emp.id+')" style="margin-right:5px;">Editar</button>'+(emp.id !== usuarioActual.id ? '<button class="btn-eliminar" onclick="eliminarEmpleado('+emp.id+')">Eliminar</button>' : '')+'</td></tr>').join(''); mostrarVista('<h2>👨‍💼 Empleados</h2><div class="card"><div style="display:flex; justify-content:space-between; margin-bottom:12px;"><h3 style="margin:0;">Activos ('+lista.length+')</h3><button class="btn-primary" style="width:auto;" onclick="nuevoEmpleado()">+ Nuevo</button></div><table><thead><tr><th>Nombre</th><th>Rol</th><th style="text-align:center;">PIN</th><th style="text-align:right;">Acciones</th></tr></thead><tbody>'+filas+'</tbody></table></div>'); }
+function nuevoEmpleado() { mostrarVista('<h2>➕ Nuevo empleado</h2><div class="card"><div class="form-group"><label>Nombre:</label><input type="text" id="emp-nombre" placeholder="Ej: Carlos"></div><div class="form-group"><label>Rol:</label><select id="emp-rol"><option value="mostrador">🛒 Mostrador</option><option value="caja">💵 Caja</option><option value="gerente">👨‍💼 Gerente</option><option value="dueno">👑 Dueño</option></select></div><div class="form-group"><label>PIN (4 dígitos):</label><input type="text" id="emp-pin" placeholder="Ej: 5678" maxlength="4"></div><button class="btn-primary" onclick="guardarEmpleado()">Crear</button></div>'); }
+async function guardarEmpleado() { try { const nombre = document.getElementById('emp-nombre').value.trim(); const rol = document.getElementById('emp-rol').value; const pin = document.getElementById('emp-pin').value.trim(); await api('/api/empleados', { method: 'POST', body: { nombre, rol, pin } }); empleados = await api('/api/empleados'); alert('✅ Empleado creado.'); verEmpleados(); } catch (err) { alert('Error: '+err.message); } }
+async function editarEmpleado(id) { const emp = empleados.find(e => e.id === id); if (!emp) return; mostrarVista('<h2>✏️ Editar</h2><div class="card"><div class="form-group"><label>Nombre:</label><input type="text" id="emp-nombre" value="'+emp.nombre+'"></div><div class="form-group"><label>Rol:</label><select id="emp-rol"><option value="mostrador" '+(emp.rol === 'mostrador' ? 'selected' : '')+'>🛒 Mostrador</option><option value="caja" '+(emp.rol === 'caja' ? 'selected' : '')+'>💵 Caja</option><option value="gerente" '+(emp.rol === 'gerente' ? 'selected' : '')+'>👨‍💼 Gerente</option><option value="dueno" '+(emp.rol === 'dueno' ? 'selected' : '')+'>👑 Dueño</option></select></div><div class="form-group"><label>PIN:</label><input type="text" id="emp-pin" value="'+emp.pin+'" maxlength="4"></div><button class="btn-primary" onclick="actualizarEmpleado('+id+')">Guardar</button></div>'); }
+async function actualizarEmpleado(id) { try { const nombre = document.getElementById('emp-nombre').value.trim(); const rol = document.getElementById('emp-rol').value; const pin = document.getElementById('emp-pin').value.trim(); await api('/api/empleados/'+id, { method: 'PUT', body: { nombre, rol, pin } }); empleados = await api('/api/empleados'); alert('✅ Actualizado.'); verEmpleados(); } catch (err) { alert('Error: '+err.message); } }
+async function eliminarEmpleado(id) { if (!confirm('¿Eliminar?')) return; await api('/api/empleados/'+id, { method: 'DELETE' }); empleados = await api('/api/empleados'); verEmpleados(); }
+init();
+</script>
+</body>
+</html>
