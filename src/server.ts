@@ -135,15 +135,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // PRODUCTOS
-app.get('/api/productos', async (_req, res) => {
-  const p = await prisma.producto.findMany({
-    where: { activo: true },
-    orderBy: { nombre: 'asc' }
-  });
-  res.json(p);
-});
-
-app.post('/api/productos', async (req, res) => {
+app.get('/api/productos', async (_req, res) => { try { const p = await prisma.producto.findMany({ where: { activo: true }, orderBy: { nombre: 'asc' }, select: { id: true, nombre: true, precio: true, stock: true, activo: true } }); res.json(p); } catch (_err) { res.json([]); } }); app.post('/api/productos', async (req, res) => {
   try {
     const { nombre, precio, stock } = req.body;
 
