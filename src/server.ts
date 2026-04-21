@@ -135,23 +135,37 @@ app.post('/api/login', async (req, res) => {
 });
 
 // PRODUCTOS
-app.get('/api/productos', async (_req, res) => { try { const p = await prisma.producto.findMany({ where: { activo: true }, orderBy: { nombre: 'asc' }, select: { id: true, nombre: true, precio: true, stock: true, activo: true } }); res.json(p); } catch (_err) { res.json([]); } }); app.post('/api/productos', async (req, res) => {
+app.get('/api/productos', async (_req, res) => {
+  try {
+    const lista = await prisma.$queryRawUnsafe(
+      'SELECT "id","nombre","precio","stock","activo" FROM "Producto" WHERE "activo" = true ORDER BY "nombre" ASC'
+    );
+    res.json(lista);
+  } catch (err: any) {
+    res.json([]);
+  }
+});
+
+app.post('/api/productos', async (req, res) => {
   try {
     const { nombre, precio, stock } = req.body;
-
-    if (!nombre || !precio || precio <= 0) {
+    if (!nombre || !precio || Number(precio) <= 0) {
       return res.status(400).json({ error: 'Datos invalidos' });
     }
 
-    const p = await prisma.producto.create({
-      data: {
-        nombre,
-        precio: parseFloat(precio),
-        stock: parseInt(stock) || 0
-      }
-    });
+    await prisma.$executeRawUnsafe(
+      'INSERT INTO "Producto" ("nombre","precio","stock","activo","createdAt") VALUES ($1,$2,$3,true,NOW())',
+      String(nombre),
+      Number(precio),
+      parseInt(stock) || 0
+    );
 
-    res.json(p);
+    const creado: any = await prisma.$queryRawUnsafe(
+      'SELECT "id","nombre","precio","stock","activo" FROM "Producto" WHERE "nombre" = $1 ORDER BY "id" DESC LIMIT 1',
+      String(nombre)
+    );
+
+    res.json(Array.isArray(creado) ? creado[0] : creado);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
